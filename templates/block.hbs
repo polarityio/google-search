@@ -1,0 +1,38 @@
+{{#if details.items}}
+    <div>
+      <span class="p-value">
+        <a href="https://cse.google.com/cse?q=%22{{block.entity.value}}%22&cx={{block.userOptions.cx}}">
+          Pivot to Google {{fa-icon "external-link-square" class="external-link-icon"}}
+        </a>
+      </span>
+    </div>
+    {{#each details.items as |result index|}}
+      {{#if (gt index 0)}}
+        <hr>
+      {{/if}}
+        <h1 class="p-title">
+          Result #{{inc index}}
+        </h1>
+
+        {{#if result.title}}
+          <div>
+            <a href="{{result.link}}" class="p-link">{{result.title}}</a>
+          </div>
+        {{/if}}
+
+        {{#if result.displayLink}}
+          <div>
+            <span class="p-key">Result Site:</span>
+            <span class="p-value">{{result.displayLink}}</span>
+          </div>
+        {{/if}}
+
+        {{#if result.snippet}}
+          <div>
+            <span class="p-key">Result Snippet:</span>
+            <div class="p-block">{{result.snippet}}</div>
+          </div>
+        {{/if}}
+
+    {{/each}}
+{{/if}}
