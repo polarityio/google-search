@@ -28,11 +28,11 @@ module.exports = {
   customTypes:[
     {
       key: 'g:Search',
-      regex: /^g:.{1,256}/
+      regex: /^g:.{2,2048}/
     },
     {
       key: 'all text',
-      regex: /^.{2,256}/
+      regex: /^[\s\S]{2,2048}$/
     },
     {
       key: '@handle',
