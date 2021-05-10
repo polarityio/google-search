@@ -15,7 +15,7 @@ module.exports = {
    * @type String
    * @required
    */
-  acronym: 'G',
+  acronym: 'GS',
   /**
    * Description for this integration which is displayed in the Polarity integrations user interface
    *
