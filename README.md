@@ -2,6 +2,9 @@
 
 The Polarity Google Search integration allows the analyst to retrieve and display search results from Google, just like you were to search for terms using google.com. 
 
+<div style="display:flex; align-items: flex-start;">
+  <img width="400" alt="Integration Example" src="./assets/integration-example.png">
+</div>
 
 ## Google Search Options
 

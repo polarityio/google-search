@@ -1,38 +1,18 @@
 {{#if details.items}}
-    <div>
-      <span class="p-value">
-        <a href="https://www.google.com/search?q=%22{{block.entity.value}}%22">
-          Pivot to Google {{fa-icon "external-link-square" class="external-link-icon"}}
-        </a>
-      </span>
+  <div class="browser-link">
+    <span class="p-value">
+      <a href="https://www.google.com/search?q=%22{{block.entity.value}}%22">
+        View in Browser {{fa-icon "external-link-square" class="external-link-icon"}}
+      </a>
+    </span>
+  </div>
+  {{#each details.items as |result index|}}
+    <div class="search-result">
+      <a class="search-header" href="{{result.link}}">
+        <span class="display-link">{{result.displayUrl}}</span>
+        <span class="header-title">{{result.title}}</span>
+      </a>
+      <div class="description">{{result.snippet}}</div>
     </div>
-    {{#each details.items as |result index|}}
-      {{#if (gt index 0)}}
-        <hr>
-      {{/if}}
-        <h1 class="p-title">
-          Result #{{inc index}}
-        </h1>
-
-        {{#if result.title}}
-          <div>
-            <a href="{{result.link}}" class="p-link">{{result.title}}</a>
-          </div>
-        {{/if}}
-
-        {{#if result.displayLink}}
-          <div>
-            <span class="p-key">Result Site:</span>
-            <span class="p-value">{{result.displayLink}}</span>
-          </div>
-        {{/if}}
-
-        {{#if result.snippet}}
-          <div>
-            <span class="p-key">Result Snippet:</span>
-            <div class="p-block">{{result.snippet}}</div>
-          </div>
-        {{/if}}
-
-    {{/each}}
+  {{/each}}
 {{/if}}

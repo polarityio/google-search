@@ -50,11 +50,12 @@ function doLookup(entities, options, cb) {
 
   Logger.debug(entities);
   entities.forEach((entity) => {
-    const url = `https://www.googleapis.com/`;
+    const url = `https://www.googleapis.com`;
+
 
     let requestOptions = {
       method: 'GET',
-      uri: `${url}customsearch/v1/`,
+      uri: `${url}/customsearch/v1/`,
       qs: {
         key: options.apiKey,
         cx: SEARCH_ENGINE_ID,
@@ -101,7 +102,20 @@ function doLookup(entities, options, cb) {
             result.entity.value.length > 120 ? '...' : ''
           }`,
           data: {
-            details: result.body
+            details: {
+              ...result.body,
+              items: result.body.items.map((item) => ({
+                ...item,
+                displayUrl:
+                  'https://' +
+                  item.formattedUrl
+                    .slice(8, item.formattedUrl.length - 1)
+                    .replace(/^\/+|\/+$/g, '')
+                    .split('/')
+                    .join(' > '),
+                snippet: item.snippet.replace(/\n/g, '')
+              }))
+            }
           }
         });
       }
