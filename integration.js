@@ -102,6 +102,7 @@ function doLookup(entities, options, cb) {
             result.entity.value.length > 120 ? '...' : ''
           }`,
           data: {
+            summary: [],
             details: {
               ...result.body,
               items: result.body.items.map((item) => ({
