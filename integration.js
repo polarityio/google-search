@@ -114,7 +114,7 @@ function doLookup(entities, options, cb) {
                     .replace(/^\/+|\/+$/g, '')
                     .split('/')
                     .join(' > '),
-                snippet: item.snippet.replace(/\n/g, '')
+                snippet: typeof item.snippet === 'string' ? item.snippet.replace(/\n/g, '') : 'No snippet available'
               }))
             }
           }
