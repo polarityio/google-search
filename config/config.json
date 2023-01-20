@@ -1,0 +1,75 @@
+{
+  "name": "Google",
+  "acronym": "GS",
+  "description": "Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.",
+  "entityTypes": [
+    "hash",
+    "cve"
+  ],
+  "customTypes": [
+    {
+      "key": "g:Search",
+      "regex": "^g:.{2,2048}"
+    },
+    {
+      "key": "all text",
+      "regex": "^[\\s\\S]{2,2048}$"
+    },
+    {
+      "key": "@handle",
+      "regex": "@(\\w){1,24}"
+    }
+  ],
+  "defaultColor": "light-gray",
+  "styles": [
+    "./styles/style.less"
+  ],
+  "block": {
+    "component": {
+      "file": "./components/block.js"
+    },
+    "template": {
+      "file": "./templates/block.hbs"
+    }
+  },
+  "summary": {
+    "component": {
+      "file": "./components/summary.js"
+    },
+    "template": {
+      "file": "./templates/summary.hbs"
+    }
+  },
+  "request": {
+    "cert": "",
+    "key": "",
+    "passphrase": "",
+    "ca": "",
+    "proxy": "",
+    "rejectUnauthorized": true
+  },
+  "logging": {
+    "level": "info"
+  },
+  "onDemandOnly": true,
+  "options": [
+    {
+      "key": "apiKey",
+      "name": "API Key",
+      "description": "Valid Google CSE API Key",
+      "default": "",
+      "type": "password",
+      "userCanEdit": true,
+      "adminOnly": false
+    },
+    {
+      "key": "maxResults",
+      "name": "Maximum Number of Results to Return",
+      "description": "Maximum number of search results to return",
+      "default": 10,
+      "type": "number",
+      "userCanEdit": false,
+      "adminOnly": true
+    }
+  ]
+}
