@@ -1,4 +1,5 @@
 {
+  "polarityIntegrationUuid": "f15e2420-cce1-11ed-aeee-075d3490155d",
   "name": "Google",
   "acronym": "GS",
   "description": "Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.",
