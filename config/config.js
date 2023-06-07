@@ -31,7 +31,7 @@ module.exports = {
       regex: /^g:.{2,2048}/
     },
     {
-      key: 'all text',
+      key: 'allText',
       regex: /^[\s\S]{2,2048}$/
     },
     {
