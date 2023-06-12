@@ -32,7 +32,7 @@ module.exports = {
     },
     {
       key: 'allText',
-      regex: /^[\s\S]{2,2048}$/
+      regex: /\S[\s\S]{2,2048}\S/
     },
     {
       key: '@handle',
@@ -85,7 +85,7 @@ module.exports = {
     rejectUnauthorized: true
   },
   logging: {
-    level: 'info' //trace, debug, info, warn, error, fatal
+    level: 'trace' //trace, debug, info, warn, error, fatal
   },
   onDemandOnly: true,
   /**
