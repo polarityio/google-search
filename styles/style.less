@@ -1,4 +1,4 @@
-
+@disclaimer-color: #5cb85c;
 
 .no-style-button,
 .search-result {
@@ -67,4 +67,40 @@
 
 .browser-link {
   margin-bottom: 7px;
+}
+
+.message-box {
+  position: fixed;
+  bottom: 0;
+  box-sizing: border-box;
+  margin-left: -10px;
+  padding: 5px;
+  background-color: #eaeaea;
+
+  input {
+    height: auto;
+    box-sizing: border-box;
+    border-color: #6c757d;
+  }
+
+  .btn {
+    height: auto;
+    box-sizing: border-box;
+  }
+}
+
+.chat-bubble {
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 35px;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  &.disclaimer {
+    border: 1px solid lighten(@disclaimer-color, 10%);
+    border-bottom: 2px solid lighten(@disclaimer-color, 10%);
+    background-color: #fff;
+    background-color: lighten(@disclaimer-color, 20%);
+    white-space: normal;
+  }
 }
