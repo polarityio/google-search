@@ -75,7 +75,7 @@ module.exports = {
     proxy: ''
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   onDemandOnly: true,
   /**
