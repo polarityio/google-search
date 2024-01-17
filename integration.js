@@ -1,170 +1,177 @@
 'use strict';
 
-const request = require('postman-request');
-const config = require('./config/config');
-const async = require('async');
-const fs = require('fs');
-
 let Logger;
-let requestWithDefaults;
 
-const MAX_PARALLEL_LOOKUPS = 10;
+const { setLogger, getLogger } = require('./src/logger');
+const { parseErrorToReadableJSON } = require('./src/errors');
+const { polarityRequest } = require('./src/polarity-request');
+const { validateOptions } = require('./src/userOptions');
+
 const SEARCH_ENGINE_ID = 'f975889461020ee7a';
+const disclaimerCache = {};
 
 function startup(logger) {
-  let defaults = {};
   Logger = logger;
-
-  const { cert, key, passphrase, ca, proxy, rejectUnauthorized } = config.request;
-
-  if (typeof cert === 'string' && cert.length > 0) {
-    defaults.cert = fs.readFileSync(cert);
-  }
-
-  if (typeof key === 'string' && key.length > 0) {
-    defaults.key = fs.readFileSync(key);
-  }
-
-  if (typeof passphrase === 'string' && passphrase.length > 0) {
-    defaults.passphrase = passphrase;
-  }
-
-  if (typeof ca === 'string' && ca.length > 0) {
-    defaults.ca = fs.readFileSync(ca);
-  }
-
-  if (typeof proxy === 'string' && proxy.length > 0) {
-    defaults.proxy = proxy;
-  }
-
-  if (typeof rejectUnauthorized === 'boolean') {
-    defaults.rejectUnauthorized = rejectUnauthorized;
-  }
-
-  requestWithDefaults = request.defaults(defaults);
+  setLogger(Logger);
 }
 
 function doLookup(entities, options, cb) {
-  let lookupResults = [];
-  let tasks = [];
+  polarityRequest.setOptions(options);
 
-  Logger.debug(entities);
-  entities.forEach((entity) => {
-    const url = `https://www.googleapis.com`;
+  if (shouldShowDisclaimer(options)) {
+    disclaimerCache[options._request.user.id] = new Date();
 
-
-    let requestOptions = {
-      method: 'GET',
-      uri: `${url}/customsearch/v1/`,
-      qs: {
-        key: options.apiKey,
-        cx: SEARCH_ENGINE_ID,
-        num: options.maxResults,
-        q: `"\"${entity.value.replace('g:','')}\""`
-      },
-      json: true
-    };
-
-    Logger.trace({ requestOptions }, 'Request Options');
-
-    tasks.push(function(done) {
-      requestWithDefaults(requestOptions, function(error, res, body) {
-        Logger.trace({ body, status: res.statusCode });
-        let processedResult = handleRestError(error, entity, res, body);
-
-        if (processedResult.error) {
-          done(processedResult);
-          return;
-        }
-
-        done(null, processedResult);
-      });
-    });
-  });
-
-  async.parallelLimit(tasks, MAX_PARALLEL_LOOKUPS, (err, results) => {
-    if (err) {
-      Logger.error({ err: err }, 'Error');
-      cb(err);
-      return;
-    }
-
-    results.forEach((result) => {
-      if (result.body === null || result.body.searchInformation.totalResults === '0') {
-        lookupResults.push({
-          entity: result.entity,
-          data: null
-        });
-      } else {
-        lookupResults.push({
-          entity: result.entity,
-          displayValue: `${result.entity.value.slice(0, 120)}${
-            result.entity.value.length > 120 ? '...' : ''
-          }`,
-          data: {
-            summary: [],
-            details: {
-              ...result.body,
-              items: result.body.items.map((item) => ({
-                ...item,
-                displayUrl:
-                  'https://' +
-                  item.formattedUrl
-                    .slice(8, item.formattedUrl.length - 1)
-                    .replace(/^\/+|\/+$/g, '')
-                    .split('/')
-                    .join(' > '),
-                snippet: typeof item.snippet === 'string' ? item.snippet.replace(/\n/g, '') : 'No snippet available'
-              }))
-            }
+    const showDisclaimer = entities.map((entity) => {
+      return {
+        entity: entity,
+        data: {
+          summary: [`Searching Google for ${entity.value}`],
+          details: {
+            showDisclaimer: options.showDisclaimer,
+            disclaimer: options.disclaimer
           }
-        });
-      }
+        }
+      };
     });
 
-    Logger.debug({ lookupResults }, 'Results');
-    cb(null, lookupResults);
-  });
+    return cb(null, showDisclaimer);
+  }
+
+  try {
+    const lookupResults = Promise.all(
+      entities.map(async (entity) => {
+        return search(entity).then((searchResults) => {
+          return {
+            entity: entity,
+            data: {
+              summary: [
+                `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
+              ],
+              details: {
+                ...searchResults.result.body,
+                items: searchResults.result.body.items.map((item) => ({
+                  ...item,
+                  displayUrl:
+                    'https://' +
+                    item.formattedUrl
+                      .slice(8, item.formattedUrl.length - 1)
+                      .replace(/^\/+|\/+$/g, '')
+                      .split('/')
+                      .join(' > '),
+                  snippet:
+                    typeof item.snippet === 'string'
+                      ? item.snippet.replace(/\n/g, '')
+                      : 'No snippet available'
+                }))
+              }
+            }
+          };
+        });
+      })
+    );
+
+    return cb(null, lookupResults);
+  } catch (err) {
+    const error = parseErrorToReadableJSON(err);
+    Logger.error({ err: error }, 'Error Searching Google');
+    return cb(error);
+  }
 }
 
-function handleRestError(error, entity, res, body) {
-  let result;
+async function search(entity) {
+  const Logger = getLogger();
 
-  if (error || !body) {
-    return {
-      error,
-      body,
-      detail: 'HTTP Request Error'
-    };
+  try {
+    const response = await polarityRequest.send({
+      method: 'GET',
+      uri: `https://www.googleapis.com/customsearch/v1/`,
+      qs: {
+        key: polarityRequest.options.apiKey,
+        cx: SEARCH_ENGINE_ID,
+        num: polarityRequest.options.maxResults,
+        q: `"\"${entity.value.replace('g:', '')}\""`
+      },
+      json: true
+    });
+
+    Logger.trace({ response }, 'Response');
+
+    return response[0];
+  } catch (err) {
+    const error = parseErrorToReadableJSON(err);
+    Logger.error({ err: error }, 'Error Searching Google');
+    throw error;
+  }
+}
+
+function shouldShowDisclaimer() {
+  if (!polarityRequest.options.showDisclaimer) {
+    return false;
   }
 
-  if (res.statusCode !== 200) {
-    return {
-      error: 'Did not receive HTTP 200 Status Code',
-      statusCode: res ? res.statusCode : 'Unknown',
-      detail: 'An unexpected error occurred'
-    };
+  const { _request } = polarityRequest.options;
+  const { user } = _request;
+  const { id } = user;
+
+  if (
+    polarityRequest.options.disclaimerInterval.value === 'all' ||
+    !disclaimerCache[id]
+  ) {
+    return true;
   }
 
-  if (res.statusCode === 200) {
-    // we got data!
-    result = {
-      entity: entity,
-      body: body
-    };
-  } else {
-    result = {
-      body,
-      errorNumber: body.errorNo,
-      error: body.errorMsg,
-      detail: body.errorMsg
-    };
-  }
+  const cachedDisclaimerTime = disclaimerCache[id];
 
-  return result;
+  const hours = getTimeDifferenceInHoursFromNow(cachedDisclaimerTime);
+  Logger.trace({ hours }, 'Hours since last disclaimer');
+  return hours >= polarityRequest.options.disclaimerInterval;
+}
+
+function getTimeDifferenceInHoursFromNow(date) {
+  const diffInMs = Math.abs(new Date() - date);
+  return diffInMs / (1000 * 60 * 60);
+}
+
+async function onMessage(payload, options, cb) {
+  switch (payload.action) {
+    case 'declineDisclaimer':
+      delete disclaimerCache[options._request.user.id];
+      cb(null, {
+        declined: true
+      });
+    case 'search':
+      const searchResults = await search(payload.entity);
+      cb(null, {
+        entity: payload.entity,
+        data: {
+          summary: [
+            `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
+          ],
+          details: {
+            ...searchResults.result.body,
+            items: searchResults.result.body.items.map((item) => ({
+              ...item,
+              displayUrl:
+                'https://' +
+                item.formattedUrl
+                  .slice(8, item.formattedUrl.length - 1)
+                  .replace(/^\/+|\/+$/g, '')
+                  .split('/')
+                  .join(' > '),
+              snippet:
+                typeof item.snippet === 'string'
+                  ? item.snippet.replace(/\n/g, '')
+                  : 'No snippet available'
+            }))
+          }
+        }
+      });
+  }
 }
 
 module.exports = {
-  doLookup: doLookup,
-  startup: startup
+  startup,
+  validateOptions,
+  doLookup,
+  onMessage
 };

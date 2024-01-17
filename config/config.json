@@ -3,10 +3,7 @@
   "name": "Google",
   "acronym": "GS",
   "description": "Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.",
-  "entityTypes": [
-    "hash",
-    "cve"
-  ],
+  "entityTypes": ["hash", "cve"],
   "customTypes": [
     {
       "key": "g:Search",
@@ -22,23 +19,13 @@
     }
   ],
   "defaultColor": "light-gray",
-  "styles": [
-    "./styles/style.less"
-  ],
+  "styles": ["./styles/style.less"],
   "block": {
     "component": {
       "file": "./components/block.js"
     },
     "template": {
       "file": "./templates/block.hbs"
-    }
-  },
-  "summary": {
-    "component": {
-      "file": "./components/summary.js"
-    },
-    "template": {
-      "file": "./templates/summary.hbs"
     }
   },
   "request": {
@@ -61,6 +48,51 @@
       "type": "password",
       "userCanEdit": true,
       "adminOnly": false
+    },
+    {
+      "key": "showDisclaimer",
+      "name": "Show Search Disclaimer",
+      "description": "If enabled, the integration will show a disclaimer the user must accept before running a search.",
+      "default": false,
+      "type": "boolean",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "disclaimer",
+      "name": "Search Disclaimer Content",
+      "description": "A disclaimer that users must review before the integration will submit questions to the Google Search API.",
+      "default": "Please affirm that no confidential information will be shared with your submission to Google. Click Accept to run your search.",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "disclaimerInterval",
+      "name": "Disclaimer Interval",
+      "description": "How often to display the disclaimer to users. Restarting the integration will reset the interval timer.",
+      "default": {
+        "value": "all",
+        "display": "All searches - disclaimer will be shown before every search (default)"
+      },
+      "type": "select",
+      "options": [
+        {
+          "value": "all",
+          "display": "All searches - disclaimer will be shown before every new search (default)"
+        },
+        {
+          "value": "24",
+          "display": "Every 24 hours - disclaimer will be shown once per day"
+        },
+        {
+          "value": "168",
+          "display": "Every week - disclaimer will be shown once per week"
+        }
+      ],
+      "multiple": false,
+      "userCanEdit": false,
+      "adminOnly": true
     },
     {
       "key": "maxResults",

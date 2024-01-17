@@ -1,6 +1,6 @@
 # Polarity - Google Search Integration
 
-The Polarity Google Search integration allows the analyst to retrieve and display search results from Google, just like you were to search for terms using google.com. 
+The Polarity Google Search integration allows the analyst to retrieve and display search results from Google, just like you were to search for terms using google.com.
 
 <div style="display:flex; align-items: flex-start;">
   <img width="400" alt="Integration Example" src="./assets/integration-example.png">
@@ -16,6 +16,18 @@ Valid Google CSE API Key
 
 Maximum Number of results to return per query.
 
+### Show Search Disclaimer
+
+If enabled, the integration will show a disclaimer the user must accept before running a search.
+
+### Search Disclaimer Content
+
+A disclaimer that users must review before the integration will submit searches to the Google API.
+
+### Disclaimer Interval
+
+How often to display the disclaimer to users. Restarting the integration will reset the interval timer.
+
 ## Installation Instructions
 
 Generate a new CSE API key on the following page:
@@ -28,7 +40,7 @@ Once the API key has been generated, navigate to the CSE configuration site to c
 
 https://cse.google.com/cse/create/new
 
-Once the search engine has been generated, you can edit it to copy the Search engine ID which you will need for the integration settings.  Add additional sites that you would like to search on the edit page as well.
+Once the search engine has been generated, you can edit it to copy the Search engine ID which you will need for the integration settings. Add additional sites that you would like to search on the edit page as well.
 
 For a more detailed video tutorial, [Look Here](https://www.youtube.com/watch?v=vP_inGfKG5E).
 
@@ -36,6 +48,6 @@ Additional installation instructions for integrations are provided on the [Polar
 
 ## Polarity
 
-Polarity is a memory-augmentation platform that improves and accelerates analyst decision making.  For more information about the Polarity platform please see:
+Polarity is a memory-augmentation platform that improves and accelerates analyst decision making. For more information about the Polarity platform please see:
 
 https://polarity.io/
