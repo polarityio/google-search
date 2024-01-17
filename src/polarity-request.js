@@ -104,8 +104,7 @@ class PolarityRequest {
         if (statusCode === HTTP_CODE_BAD_REQUEST_400) {
           return reject(
             new ApiRequestError(
-              `Request Error: Or, check that the Falcon LogScale is correct in the Polarity client user options.
-                `,
+              `Request Error: Check that Google Search Options are correct in the Polarity client.`,
               {
                 statusCode,
                 requestOptions

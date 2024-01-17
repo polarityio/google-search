@@ -1,46 +1,46 @@
 {{#if details}}
-  <div class='browser-link'>
-    <span class='p-value'>
-      <a href='https://www.google.com/search?q=%22{{block.entity.value}}%22'>
+  <div class="browser-link">
+    <span class="p-value">
+      <a href="https://www.google.com/search?q=%22{{block.entity.value}}%22">
         View in Browser
-        {{fa-icon 'external-link-square' class='external-link-icon'}}
+        {{fa-icon "external-link-square" class="external-link-icon"}}
       </a>
     </span>
   </div>
 
   {{#if errorMessage}}
-    <div class='alert alert-danger mt-1'>{{errorMessage}}</div>
+    <div class="alert alert-danger mt-1">{{errorMessage}}</div>
   {{/if}}
 
   {{#each details.items as |result index|}}
-    <div class='search-result'>
-      <a class='search-header' href='{{result.link}}'>
-        <span class='display-link'>{{result.displayUrl}}</span>
-        <span class='header-title'>{{result.title}}</span>
+    <div class="search-result">
+      <a class="search-header" href="{{result.link}}">
+        <span class="display-link">{{result.displayUrl}}</span>
+        <span class="header-title">{{result.title}}</span>
       </a>
-      <div class='description'>{{result.snippet}}</div>
+      <div class="description">{{result.snippet}}</div>
     </div>
   {{/each}}
 
   {{#if details.showDisclaimer}}
-    <div class='d-flex align-items-start mt-2 chat-bubble disclaimer'>
+    <div class="d-flex align-items-start mt-2 chat-bubble disclaimer">
       {{details.disclaimer}}
     </div>
   {{/if}}
 
   {{#if details.showDisclaimer}}
-    <div class='message-box w-100 d-flex justify-content-end'>
+    <div class="message-box w-100 d-flex justify-content-end">
       <button
-        {{action 'declineDisclaimer'}}
-        class='btn btn-outline-secondary'
-        type='button'
+        {{action "declineDisclaimer"}}
+        class="btn btn-outline-secondary"
+        type="button"
       >
         Decline
       </button>
       <button
-        {{action 'acceptDisclaimer'}}
-        class='btn btn-outline-secondary ml-1'
-        type='button'
+        {{action "acceptDisclaimer"}}
+        class="btn btn-outline-secondary ml-1"
+        type="button"
       >
         Accept
       </button>
@@ -49,7 +49,7 @@
 {{/if}}
 
 {{#if details.disclaimerDeclined}}
-  <div class='d-flex align-items-start mt-2 chat-bubble disclaimer'>
+  <div class="d-flex align-items-start mt-2 chat-bubble disclaimer">
     <span>Search declined. Please view in the browser using the 'View in Browser' external
       link.</span>
   </div>

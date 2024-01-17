@@ -5,6 +5,7 @@ let Logger;
 const { setLogger, getLogger } = require('./src/logger');
 const { parseErrorToReadableJSON } = require('./src/errors');
 const { polarityRequest } = require('./src/polarity-request');
+const { validateOptions } = require('./src/userOptions');
 
 const SEARCH_ENGINE_ID = 'f975889461020ee7a';
 const disclaimerCache = {};
@@ -85,8 +86,7 @@ async function search(entity) {
       method: 'GET',
       uri: `https://www.googleapis.com/customsearch/v1/`,
       qs: {
-        key: 'asdasdsa',
-        // key: polarityRequest.options.apiKey,
+        key: polarityRequest.options.apiKey,
         cx: SEARCH_ENGINE_ID,
         num: polarityRequest.options.maxResults,
         q: `"\"${entity.value.replace('g:', '')}\""`
@@ -170,7 +170,8 @@ async function onMessage(payload, options, cb) {
 }
 
 module.exports = {
-  doLookup: doLookup,
-  startup: startup,
-  onMessage: onMessage
+  startup,
+  validateOptions,
+  doLookup,
+  onMessage
 };
