@@ -15,10 +15,10 @@ function startup(logger) {
   setLogger(Logger);
 }
 
-function doLookup(entities, options, cb) {
+async function doLookup(entities, options, cb) {
   polarityRequest.setOptions(options);
 
-  if (shouldShowDisclaimer(options)) {
+  if (shouldShowDisclaimer()) {
     disclaimerCache[options._request.user.id] = new Date();
 
     const showDisclaimer = entities.map((entity) => {
@@ -38,38 +38,37 @@ function doLookup(entities, options, cb) {
   }
 
   try {
-    const lookupResults = Promise.all(
+    const lookupResults = await Promise.all(
       entities.map(async (entity) => {
-        return search(entity).then((searchResults) => {
-          return {
-            entity: entity,
-            data: {
-              summary: [
-                `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
-              ],
-              details: {
-                ...searchResults.result.body,
-                items: searchResults.result.body.items.map((item) => ({
-                  ...item,
-                  displayUrl:
-                    'https://' +
-                    item.formattedUrl
-                      .slice(8, item.formattedUrl.length - 1)
-                      .replace(/^\/+|\/+$/g, '')
-                      .split('/')
-                      .join(' > '),
-                  snippet:
-                    typeof item.snippet === 'string'
-                      ? item.snippet.replace(/\n/g, '')
-                      : 'No snippet available'
-                }))
-              }
+        const searchResults = await search(entity);
+        return {
+          entity,
+          data: {
+            summary: [
+              `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
+            ],
+            details: {
+              ...searchResults.result.body,
+              items: searchResults.result.body.items.map((item) => ({
+                ...item,
+                displayUrl:
+                  'https://' +
+                  item.formattedUrl
+                    .slice(8, item.formattedUrl.length - 1)
+                    .replace(/^\/+|\/+$/g, '')
+                    .split('/')
+                    .join(' > '),
+                snippet:
+                  typeof item.snippet === 'string'
+                    ? item.snippet.replace(/\n/g, '')
+                    : 'No snippet available'
+              }))
             }
-          };
-        });
+          }
+        };
       })
     );
-
+    
     return cb(null, lookupResults);
   } catch (err) {
     const error = parseErrorToReadableJSON(err);
