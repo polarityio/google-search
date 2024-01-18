@@ -90,7 +90,6 @@ class IntegrationError extends Error {
   constructor(message, properties = {}) {
     const Logger = getLogger();
     super(message);
-    Logger.info({ properties }, 'Error properties');
     // These are enumerable properties which the Polarity server can access
     // Most important is the `detail` property which is used to display
     // a user friendly message in the Overlay Window.
@@ -121,6 +120,10 @@ class IntegrationError extends Error {
     const sanitizedOptions = {
       ...requestOptions
     };
+
+    if(sanitizedOptions.qs && sanitizedOptions.qs.key) {
+      sanitizedOptions.qs.key = '**********';
+    }
 
     if (sanitizedOptions.headers && sanitizedOptions.headers.Authorization) {
       sanitizedOptions.headers.Authorization = '**********';
