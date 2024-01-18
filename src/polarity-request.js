@@ -90,7 +90,6 @@ class PolarityRequest {
 
     return new Promise((resolve, reject) => {
       this.requestWithDefaults(requestOptions, async (err, response) => {
-        Logger.trace({ err, response }, 'Response_AAA');
         const statusCode = response.statusCode;
 
         if (
