@@ -2,6 +2,7 @@
 
 let Logger;
 
+const _ = require('lodash');
 const { setLogger, getLogger } = require('./src/logger');
 const { parseErrorToReadableJSON } = require('./src/errors');
 const { polarityRequest } = require('./src/polarity-request');
@@ -51,6 +52,7 @@ async function doLookup(entities, options, cb) {
       })
     );
 
+    Logger.trace({ lookupResults }, 'Lookup Results');
     return cb(null, lookupResults);
   } catch (err) {
     const error = parseErrorToReadableJSON(err);
@@ -97,6 +99,7 @@ function getDetails(searchResults) {
           .replace(/^\/+|\/+$/g, '')
           .split('/')
           .join(' > '),
+      siteName: _.get(item, 'pagemap.metatags[0].og:site_name', ''),
       snippet:
         typeof item.snippet === 'string'
           ? item.snippet.replace(/\n/g, '')
