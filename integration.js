@@ -17,6 +17,7 @@ function startup(logger) {
 }
 
 async function doLookup(entities, options, cb) {
+  Logger.trace({ entities }, 'doLookup');
   polarityRequest.setOptions(options);
 
   if (shouldShowDisclaimer()) {
@@ -42,13 +43,21 @@ async function doLookup(entities, options, cb) {
     const lookupResults = await Promise.all(
       entities.map(async (entity) => {
         const searchResults = await search(entity);
-        return {
-          entity,
-          data: {
-            summary: getSummaryTags(searchResults),
-            details: getDetails(searchResults)
-          }
-        };
+
+        if (isMiss(searchResults)) {
+          return {
+            entity,
+            data: null
+          };
+        } else {
+          return {
+            entity,
+            data: {
+              summary: getSummaryTags(searchResults),
+              details: getDetails(searchResults)
+            }
+          };
+        }
       })
     );
 
@@ -61,6 +70,11 @@ async function doLookup(entities, options, cb) {
   }
 }
 
+function isMiss(searchResults) {
+  const items = _.get(searchResults, 'result.body.items', []);
+  return items.length === 0;
+}
+
 async function search(entity) {
   const Logger = getLogger();
 
@@ -71,7 +85,7 @@ async function search(entity) {
       key: polarityRequest.options.apiKey,
       cx: SEARCH_ENGINE_ID,
       num: polarityRequest.options.maxResults,
-      q: `"\"${entity.value.replace('g:', '')}\""`
+      q: `\"${entity.value.replace('g:', '')}\"`
     },
     json: true
   });
@@ -88,9 +102,10 @@ function getSummaryTags(searchResults) {
 }
 
 function getDetails(searchResults) {
+  const items = _.get(searchResults, 'result.body.items', []);
   return {
     ...searchResults.result.body,
-    items: searchResults.result.body.items.map((item) => ({
+    items: items.map((item) => ({
       ...item,
       displayUrl:
         'https://' +
@@ -147,13 +162,25 @@ async function onMessage(payload, options, cb) {
     case 'search':
       try {
         const searchResults = await search(payload.entity);
-        cb(null, {
-          entity: payload.entity,
-          data: {
-            summary: getSummaryTags(searchResults),
-            details: getDetails(searchResults)
-          }
-        });
+        if (isMiss(searchResults)) {
+          cb(null, {
+            entity: payload.entity,
+            data: {
+              summary: getSummaryTags(searchResults),
+              details: {
+                noResults: true
+              }
+            }
+          });
+        } else {
+          cb(null, {
+            entity: payload.entity,
+            data: {
+              summary: getSummaryTags(searchResults),
+              details: getDetails(searchResults)
+            }
+          });
+        }
       } catch (error) {
         const errorJson = parseErrorToReadableJSON(error);
         Logger.error(errorJson, 'Error Searching Google');
