@@ -1,5 +1,15 @@
 @disclaimer-color: #5cb85c;
 
+.onmessage-error {
+  overflow-y: scroll;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 150px;
+  padding: 5px;
+  margin-top: 5px;
+}
+
 .no-style-button,
 .search-result {
   font-size: 100%;
@@ -33,6 +43,7 @@
     &:hover {
       cursor: pointer;
     }
+
     .display-link {
       display: block;
       font-size: 12px;
@@ -42,6 +53,7 @@
         color: #5f6368;
       }
     }
+
     .header-title {
       display: inline-block;
       padding-top: 3px;
@@ -49,6 +61,7 @@
       color: #1a0dab;
       margin-bottom: 3px;
       line-height: 1;
+
       &:hover {
         text-decoration: underline;
       }

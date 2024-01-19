@@ -44,35 +44,17 @@ async function doLookup(entities, options, cb) {
         return {
           entity,
           data: {
-            summary: [
-              `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
-            ],
-            details: {
-              ...searchResults.result.body,
-              items: searchResults.result.body.items.map((item) => ({
-                ...item,
-                displayUrl:
-                  'https://' +
-                  item.formattedUrl
-                    .slice(8, item.formattedUrl.length - 1)
-                    .replace(/^\/+|\/+$/g, '')
-                    .split('/')
-                    .join(' > '),
-                snippet:
-                  typeof item.snippet === 'string'
-                    ? item.snippet.replace(/\n/g, '')
-                    : 'No snippet available'
-              }))
-            }
+            summary: getSummaryTags(searchResults),
+            details: getDetails(searchResults)
           }
         };
       })
     );
-    
+
     return cb(null, lookupResults);
   } catch (err) {
     const error = parseErrorToReadableJSON(err);
-    Logger.error({ err: error }, 'Error Searching Google');
+    Logger.error(error, 'Error Searching Google');
     return cb(error);
   }
 }
@@ -80,27 +62,47 @@ async function doLookup(entities, options, cb) {
 async function search(entity) {
   const Logger = getLogger();
 
-  try {
-    const response = await polarityRequest.send({
-      method: 'GET',
-      uri: `https://www.googleapis.com/customsearch/v1/`,
-      qs: {
-        key: polarityRequest.options.apiKey,
-        cx: SEARCH_ENGINE_ID,
-        num: polarityRequest.options.maxResults,
-        q: `"\"${entity.value.replace('g:', '')}\""`
-      },
-      json: true
-    });
+  const response = await polarityRequest.send({
+    method: 'GET',
+    uri: `https://www.googleapis.com/customsearch/v1/`,
+    qs: {
+      key: polarityRequest.options.apiKey,
+      cx: SEARCH_ENGINE_ID,
+      num: polarityRequest.options.maxResults,
+      q: `"\"${entity.value.replace('g:', '')}\""`
+    },
+    json: true
+  });
 
-    Logger.trace({ response }, 'Response');
+  Logger.trace({ response }, 'Response');
 
-    return response[0];
-  } catch (err) {
-    const error = parseErrorToReadableJSON(err);
-    Logger.error({ err: error }, 'Error Searching Google');
-    throw error;
-  }
+  return response[0];
+}
+
+function getSummaryTags(searchResults) {
+  return [
+    `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
+  ];
+}
+
+function getDetails(searchResults) {
+  return {
+    ...searchResults.result.body,
+    items: searchResults.result.body.items.map((item) => ({
+      ...item,
+      displayUrl:
+        'https://' +
+        item.formattedUrl
+          .slice(8, item.formattedUrl.length - 1)
+          .replace(/^\/+|\/+$/g, '')
+          .split('/')
+          .join(' > '),
+      snippet:
+        typeof item.snippet === 'string'
+          ? item.snippet.replace(/\n/g, '')
+          : 'No snippet available'
+    }))
+  };
 }
 
 function shouldShowDisclaimer() {
@@ -138,33 +140,23 @@ async function onMessage(payload, options, cb) {
       cb(null, {
         declined: true
       });
+      break;
     case 'search':
-      const searchResults = await search(payload.entity);
-      cb(null, {
-        entity: payload.entity,
-        data: {
-          summary: [
-            `About ${searchResults.result.body.searchInformation.formattedTotalResults} results`
-          ],
-          details: {
-            ...searchResults.result.body,
-            items: searchResults.result.body.items.map((item) => ({
-              ...item,
-              displayUrl:
-                'https://' +
-                item.formattedUrl
-                  .slice(8, item.formattedUrl.length - 1)
-                  .replace(/^\/+|\/+$/g, '')
-                  .split('/')
-                  .join(' > '),
-              snippet:
-                typeof item.snippet === 'string'
-                  ? item.snippet.replace(/\n/g, '')
-                  : 'No snippet available'
-            }))
+      try {
+        const searchResults = await search(payload.entity);
+        cb(null, {
+          entity: payload.entity,
+          data: {
+            summary: getSummaryTags(searchResults),
+            details: getDetails(searchResults)
           }
-        }
-      });
+        });
+      } catch (error) {
+        const errorJson = parseErrorToReadableJSON(error);
+        Logger.error(errorJson, 'Error Searching Google');
+        return cb(errorJson);
+      }
+      break;
   }
 }
 

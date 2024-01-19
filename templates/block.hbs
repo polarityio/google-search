@@ -8,8 +8,8 @@
     </span>
   </div>
 
-  {{#if errorMessage}}
-    <div class="alert alert-danger mt-1">{{errorMessage}}</div>
+  {{#if block._state.errorMessage}}
+    <div class="alert alert-danger mt-1 onmessage-error">{{block._state.errorMessage}}</div>
   {{/if}}
 
   {{#each details.items as |result index|}}

@@ -1,5 +1,3 @@
-const { getLogger } = require('./logger');
-
 // The following is a list of NodeJS error codes that are related
 // to TLS/SSL certificate errors.  These can be encountered when attempting to connect
 // to a server/API/endpoint that has an invalid or untrusted TLS certificate.
@@ -88,7 +86,6 @@ class IntegrationError extends Error {
    * have sensitive authentication headers stripped.
    */
   constructor(message, properties = {}) {
-    const Logger = getLogger();
     super(message);
     // These are enumerable properties which the Polarity server can access
     // Most important is the `detail` property which is used to display
@@ -121,7 +118,7 @@ class IntegrationError extends Error {
       ...requestOptions
     };
 
-    if(sanitizedOptions.qs && sanitizedOptions.qs.key) {
+    if (sanitizedOptions.qs && sanitizedOptions.qs.key) {
       sanitizedOptions.qs.key = '**********';
     }
 
@@ -155,8 +152,6 @@ class IntegrationError extends Error {
    * @returns {{name: string, detail: string}}
    */
   toJSON() {
-    const Logger = getLogger();
-
     let props = {
       name: this.name,
       detail: this.detail
@@ -171,7 +166,6 @@ class IntegrationError extends Error {
     }
 
     if (Object.keys(this.meta).length > 0) {
-      //Logger.info({ meta: this.meta }, 'toJSON');
       props.meta = this.meta;
     }
 

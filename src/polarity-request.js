@@ -43,6 +43,7 @@ class PolarityRequest {
     this.MAX_RETRIES = 0;
     this.currentRetries = 0;
   }
+
   /**
    * Set header `field` to `val`, or pass
    * an object of header fields.
@@ -71,6 +72,7 @@ class PolarityRequest {
   setOptions(options) {
     this.options = options;
   }
+
   /**
    * Makes a request network request using postman-request.  If the request is an array, it will run the requests in parallel.
    * @param requestOptions  - the request options to pass to postman-request. It will either being an array of requests or a single request.
@@ -90,7 +92,30 @@ class PolarityRequest {
 
     return new Promise((resolve, reject) => {
       this.requestWithDefaults(requestOptions, async (err, response) => {
-        const statusCode = response.statusCode;
+        const statusCode = response ? response.statusCode : 500;
+        const body = response ? response.body : {};
+
+        //TODO: add retry logic for 500, 502, 504s
+        if (
+          err ||
+          statusCode === HTTP_CODE_SERVER_LIMIT_500 ||
+          statusCode === HTTP_CODE_SERVER_LIMIT_502 ||
+          statusCode === HTTP_CODE_SERVER_LIMIT_504
+        ) {
+          return reject(
+            new NetworkError(
+              `Network Error: The server you are trying to connect to is unavailable`,
+              {
+                cause: err,
+                requestOptions,
+                statusCode,
+                body
+              }
+            )
+          );
+        }
+
+        Logger.trace({ response }, 'Raw HTTP Response');
 
         if (
           statusCode === HTTP_CODE_SUCCESS_200 ||
@@ -103,10 +128,13 @@ class PolarityRequest {
         if (statusCode === HTTP_CODE_BAD_REQUEST_400) {
           return reject(
             new ApiRequestError(
-              `Request Error: Check that Google Search Options are correct in the Polarity client.`,
+              body && body.error && body.error.message
+                ? body.error.message
+                : `Request Error: Check that Google Search Options are correct in the Integration options.`,
               {
                 statusCode,
-                requestOptions
+                requestOptions,
+                body
               }
             )
           );
@@ -115,10 +143,13 @@ class PolarityRequest {
         if (statusCode === HTTP_CODE_EXPIRED_BEARER_TOKEN_401) {
           return reject(
             new AuthRequestError(
-              `Authorization Error: Check that your API key is valid.`,
+              body && body.error && body.error.message
+                ? body.error.message
+                : `Authorization Error: Check that your API key is valid.`,
               {
                 statusCode,
-                requestOptions
+                requestOptions,
+                body
               }
             )
           );
@@ -127,39 +158,31 @@ class PolarityRequest {
         if (statusCode === HTTP_CODE_TOKEN_MISSING_PERMISSIONS_OR_REVOKED_403) {
           return reject(
             new AuthRequestError(
-              `Token Error: Check that your API key is not expired and that you have the correct permissions.`
-            )
-          );
-        }
-        if (statusCode === HTTP_CODE_NOT_FOUND_404) {
-          return resolve({ ...response, requestOptions });
-        }
-
-        if (statusCode === HTTP_CODE_API_LIMIT_REACHED_429) {
-          return reject(
-            new ApiRequestError(``, {
-              statusCode,
-              requestOptions
-            })
-          );
-        }
-
-        //TODO: add retry logic for 500, 502, 504s
-        if (
-          statusCode === HTTP_CODE_SERVER_LIMIT_500 ||
-          statusCode === HTTP_CODE_SERVER_LIMIT_502 ||
-          statusCode === HTTP_CODE_SERVER_LIMIT_504
-        ) {
-          return reject(
-            new NetworkError(
-              `Network Error: The server you are trying to connect to is unavailable`,
+              body && body.error && body.error.message
+                ? body.error.message
+                : `Token Error: Check that your API key is not expired and that you have the correct permissions.`,
               {
-                cause: err,
+                body,
+                statusCode,
                 requestOptions
               }
             )
           );
         }
+
+        // unknown API error at this point
+        return reject(
+          new ApiRequestError(
+            body && body.error && body.error.message
+              ? body.error.message
+              : `Unexpected HTTP Status Code: ${statusCode}`,
+            {
+              body,
+              statusCode,
+              requestOptions
+            }
+          )
+        );
       });
     });
   }
