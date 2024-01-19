@@ -25,7 +25,7 @@
         nested links here are to ensure that web search is able to detect that a click on the nested spans
         shoudl be opened in a new tab
         --}}
-        <a class="d-flex align-items-center">
+        <a class="d-flex align-items-center" href="{{result.link}}">
           {{!-- Show favicon is available, if not available hide this element --}}
           <img class="site-icon" onerror="this.style.display='none'" alt="" src="https://www.google.com/s2/favicons?domain={{result.displayLink}}">
           {{#if result.siteName}}
