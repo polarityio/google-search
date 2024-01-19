@@ -1,18 +1,75 @@
-{{#if details.items}}
-  <div class="browser-link">
+{{#if details}}
+  <div class="browser-link mb-2">
     <span class="p-value">
       <a href="https://www.google.com/search?q=%22{{block.entity.value}}%22">
-        View in Browser {{fa-icon "external-link-square" class="external-link-icon"}}
+        View in Browser
+        {{fa-icon "external-link-square" class="external-link-icon"}}
       </a>
     </span>
   </div>
+
+  {{#if runningSearch}}
+    <div>
+      {{fa-icon icon="spinner-third" spin=true fixedWidth=true}} Searching ...
+    </div>
+  {{/if}}
+
+  {{#if block._state.errorMessage}}
+    <div class="alert alert-danger mt-1 onmessage-error">{{block._state.errorMessage}}</div>
+  {{/if}}
+
   {{#each details.items as |result index|}}
     <div class="search-result">
       <a class="search-header" href="{{result.link}}">
+        {{!--
+        nested links here are to ensure that web search is able to detect that a click on the nested spans
+        shoudl be opened in a new tab
+        --}}
+        <a class="d-flex align-items-center">
+          {{!-- Show favicon is available, if not available hide this element --}}
+          <img class="site-icon" onerror="this.style.display='none'" alt="" src="https://www.google.com/s2/favicons?domain={{result.displayLink}}">
+          {{#if result.siteName}}
+            <span class="site-name">{{result.siteName}}</span>
+          {{else}}
+            <span class="site-name">{{result.displayLink}}</span>
+          {{/if}}
+        </a>
         <span class="display-link">{{result.displayUrl}}</span>
         <span class="header-title">{{result.title}}</span>
       </a>
       <div class="description">{{result.snippet}}</div>
     </div>
   {{/each}}
+
+  {{#if details.showDisclaimer}}
+    <div class="d-flex align-items-start mt-2 chat-bubble disclaimer">
+      {{details.disclaimer}}
+    </div>
+  {{/if}}
+
+  {{#if details.showDisclaimer}}
+    <div class="message-box w-100 d-flex justify-content-end">
+      <button
+        {{action "declineDisclaimer"}}
+        class="btn btn-outline-secondary"
+        type="button"
+      >
+        Decline
+      </button>
+      <button
+        {{action "acceptDisclaimer"}}
+        class="btn btn-outline-secondary ml-1"
+        type="button"
+      >
+        Accept
+      </button>
+    </div>
+  {{/if}}
+{{/if}}
+
+{{#if details.disclaimerDeclined}}
+  <div class="d-flex align-items-start mt-2 chat-bubble disclaimer">
+    <span>Search declined. Please view in the browser using the 'View in Browser' external
+      link.</span>
+  </div>
 {{/if}}

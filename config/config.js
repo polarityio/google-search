@@ -23,9 +23,9 @@ module.exports = {
    * @optional
    */
   description:
-    "Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.",
+    'Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.',
   entityTypes: ['hash', 'cve'],
-  customTypes:[
+  customTypes: [
     {
       key: 'g:Search',
       regex: /^g:.{2,2048}/
@@ -57,14 +57,6 @@ module.exports = {
       file: './templates/block.hbs'
     }
   },
-  summary: {
-    component: {
-      file: './components/summary.js'
-    },
-    template: {
-      file: './templates/summary.hbs'
-    }
-  },
   request: {
     // Provide the path to your certFile. Leave an empty string to ignore this option.
     // Relative paths are relative to the integration's root directory
@@ -80,7 +72,7 @@ module.exports = {
     ca: '',
     // An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for
     // the url parameter (by embedding the auth info in the uri)
-    proxy: ""
+    proxy: ''
   },
   logging: {
     level: 'info' //trace, debug, info, warn, error, fatal
@@ -100,8 +92,58 @@ module.exports = {
       description: 'Valid Google CSE API Key',
       default: '',
       type: 'password',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'showDisclaimer',
+      name: 'Show Search Disclaimer',
+      description:
+        'If enabled, the integration will show a disclaimer the user must accept before running a search.',
+      default: false,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'disclaimer',
+      name: 'Search Disclaimer Content',
+      description:
+        'A disclaimer that users must review before the integration will submit questions to the Google Search API.',
+      default:
+        'Please affirm that no confidential information will be shared with your submission to Google. Click Accept to run your search.',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'disclaimerInterval',
+      name: 'Disclaimer Interval',
+      description:
+        'How often to display the disclaimer to users. Restarting the integration will reset the interval timer.',
+      default: {
+        value: 'all',
+        display: 'All searches - disclaimer will be shown before every search (default)'
+      },
+      type: 'select',
+      options: [
+        {
+          value: 'all',
+          display:
+            'All searches - disclaimer will be shown before every new search (default)'
+        },
+        {
+          value: '24',
+          display: 'Every 24 hours - disclaimer will be shown once per day'
+        },
+        {
+          value: '168',
+          display: 'Every week - disclaimer will be shown once per week'
+        }
+      ],
+      multiple: false,
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'maxResults',
