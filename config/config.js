@@ -92,8 +92,8 @@ module.exports = {
       description: 'Valid Google CSE API Key',
       default: '',
       type: 'password',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'showDisclaimer',
