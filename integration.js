@@ -25,7 +25,7 @@ async function doLookup(entities, options, cb) {
       return {
         entity: entity,
         data: {
-          summary: [`Searching Google for ${entity.value}`],
+          summary: [`Accept Disclaimer`],
           details: {
             showDisclaimer: options.showDisclaimer,
             disclaimer: options.disclaimer
