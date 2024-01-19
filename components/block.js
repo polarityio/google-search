@@ -27,11 +27,15 @@ polarity.export = PolarityComponent.extend({
         })
         .catch((error) => {
           console.error(error);
-          this.set('block._state.errorMessage', JSON.stringify(this.getErrorMessage(error), null, 2));
+          this.set(
+            'block._state.errorMessage',
+            JSON.stringify(this.getErrorMessage(error), null, 2)
+          );
         });
     }
   },
   search: function () {
+    this.set('runningSearch', true);
     const payload = {
       action: 'search',
       entity: this.get('block.entity')
@@ -46,7 +50,13 @@ polarity.export = PolarityComponent.extend({
       })
       .catch((error) => {
         console.error(error);
-        this.set('block._state.errorMessage', JSON.stringify(this.getErrorMessage(error), null, 2));
+        this.set(
+          'block._state.errorMessage',
+          JSON.stringify(this.getErrorMessage(error), null, 2)
+        );
+      })
+      .finally(() => {
+        this.set('runningSearch', false);
       });
   },
   getErrorMessage(error) {

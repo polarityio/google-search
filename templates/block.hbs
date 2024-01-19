@@ -8,6 +8,12 @@
     </span>
   </div>
 
+  {{#if runningSearch}}
+    <div>
+      {{fa-icon icon="spinner-third" spin=true fixedWidth=true}} Searching ...
+    </div>
+  {{/if}}
+
   {{#if block._state.errorMessage}}
     <div class="alert alert-danger mt-1 onmessage-error">{{block._state.errorMessage}}</div>
   {{/if}}
