@@ -12,10 +12,6 @@ The Polarity Google Search integration allows the analyst to retrieve and displa
 
 Valid Google CSE API Key
 
-### Max Results
-
-Maximum Number of results to return per query.
-
 ### Show Search Disclaimer
 
 If enabled, the integration will show a disclaimer the user must accept before running a search.
@@ -27,6 +23,10 @@ A disclaimer that users must review before the integration will submit searches 
 ### Disclaimer Interval
 
 How often to display the disclaimer to users. Restarting the integration will reset the interval timer.
+
+### Max Results
+
+Maximum Number of results to return per query.
 
 ## Installation Instructions
 
