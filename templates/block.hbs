@@ -32,7 +32,7 @@
       --}}
       <a class="d-flex align-items-center" href="{{result.link}}">
         {{!-- Show favicon is available, if not available hide this element --}}
-        <img class="site-icon" onerror="this.style.display='none'" alt="" src="https://www.google.com/s2/favicons?domain={{result.displayLink}}">
+        <img class="site-icon" onerror="this.style.display='none'" alt="" src="https://www.google.com/s2/favicons?domain={{result.displayLink}}?size=64">
         {{#if result.siteName}}
           <span class="site-name">{{result.siteName}}</span>
         {{else}}
