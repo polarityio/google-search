@@ -24,7 +24,7 @@ module.exports = {
    */
   description:
     'Google integration allows a Polarity user to retrieve and display search results from Google programmatically. Just like searching Google directly.',
-  entityTypes: ['hash', 'cve'],
+  entityTypes: ['MD5', 'SHA1', 'SHA256', 'cve'],
   customTypes: [
     {
       key: 'g:Search',
